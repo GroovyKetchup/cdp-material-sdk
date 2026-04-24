@@ -31,7 +31,9 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         shell: bash
         run: |
-          tarball="$(npm pack | tail -n 1)"
+          npm pack --json > pack-output.json
+          tarball="$(node --input-type=module -e 'import { readFileSync } from "node:fs"; const parsed = JSON.parse(readFileSync("pack-output.json", "utf8")); const filename = Array.isArray(parsed) ? parsed.at(-1)?.filename : parsed?.filename; if (!filename) { throw new Error("npm pack --json did not return a filename"); } process.stdout.write(filename);')"
+          rm pack-output.json
           echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
 
       - name: Upload tarball to GitHub Release
