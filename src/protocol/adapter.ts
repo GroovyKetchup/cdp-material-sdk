@@ -1,7 +1,13 @@
 import type { CustomEventKey, EventKey, EngineEventProtocol, StandardEventKey } from './events';
 
+/**
+ * 作用域上下文 — 包含所在作用域数据及索引。
+ *
+ * 例如在表格行或列表项中，record 为当前行/项数据，index 为其索引。
+ */
 export interface ScopeContext {
-  [key: string]: unknown;
+  record: any;
+  index?: number;
 }
 
 export interface StandardEventBinding<K extends StandardEventKey> {

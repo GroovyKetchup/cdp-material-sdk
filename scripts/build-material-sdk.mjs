@@ -23,7 +23,7 @@ await build({
       fileName: (_format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'react/jsx-runtime', 'zustand'],
+      external: ['react', 'react-dom', 'react/jsx-runtime', 'zustand', /^lodash-es/],
     },
   },
 });

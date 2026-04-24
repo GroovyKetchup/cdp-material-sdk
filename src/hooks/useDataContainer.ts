@@ -2,6 +2,7 @@ import { useCallback, useContext } from 'react';
 import { useStore } from 'zustand';
 import { DataContainerRuntimeContext, type DataContainerRuntimeContextValue } from '../context/DataContainerRuntimeContext';
 import { PageContext } from '../context/PageContext';
+import { mergeComponentInitialValue } from '../utils/mergeInitialValue';
 
 /**
  * 面向数据容器的命令式访问接口。
@@ -35,6 +36,13 @@ export interface UseDataContainerResult<T = any> extends UseDataContainerApiResu
 }
 
 /**
+ * 只有 undefined / 非 null 对象（含数组）才允许参与初始化期 fallback 合并。
+ * null / primitive 代表业务层已经给出了明确结果，不应再被 defaultValue 覆盖。
+ */
+const canMergeDataContainerRuntimeFallback = (currentValue: unknown) =>
+  currentValue === undefined || (currentValue !== null && typeof currentValue === 'object');
+
+/**
  * 判断主机 React 数据容器辅助函数当前是否应临时回退到运行时提供的
  * 初始默认值。
  *
@@ -58,12 +66,13 @@ export const shouldUseDataContainerRuntimeFallback = (
     return false;
   }
 
-  return currentValue === undefined;
+  return canMergeDataContainerRuntimeFallback(currentValue);
 };
 
 /**
- * 解析当前应对外可见的数据容器值。
- * 优先使用页面 store 中的值；若尚不可用，则回退到运行时默认值。
+ * 将 runtime fallback 与当前 store 值按 initComponentData 的同一套语义合并。
+ * 维护要求：任何初始值合并规则的调整都应复用 mergeComponentInitialValue，
+ * 避免 getContainerData()/containerData 与 initComponentData 的语义漂移。
  */
 export const resolveDataContainerRuntimeValue = <T = any>(
   componentId: string | undefined,
@@ -74,7 +83,7 @@ export const resolveDataContainerRuntimeValue = <T = any>(
     return currentValue;
   }
 
-  return runtimeContext?.initialDefaultValueRef.current as T | undefined;
+  return mergeComponentInitialValue(currentValue, runtimeContext?.initialDefaultValueRef.current) as T | undefined;
 };
 
 /**
