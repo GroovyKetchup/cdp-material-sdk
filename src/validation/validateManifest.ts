@@ -13,8 +13,11 @@ import { COMPONENT_CATEGORY } from '../types/category';
 import type { ComponentManifest } from '../protocol/manifest';
 import { normalizeManifestEvents, INJECT_PATH_ROOT } from '../protocol/manifest';
 import { INJECT_PATH_SLOT_PROPS } from '../components/core/types';
+import { COMPONENT_TRAIT } from '../protocol/traits';
 import { normalizeAdapterEvents } from '../protocol/adapter';
 import { isStandardEventKey, isCustomEventKey } from '../protocol/events';
+
+const DATA_TRAITS = [COMPONENT_TRAIT.DATA_FIELD, COMPONENT_TRAIT.DATA_CONTAINER] as string[];
 
 const KNOWN_INJECT_PATHS = [INJECT_PATH_ROOT, INJECT_PATH_SLOT_PROPS];
 
@@ -43,7 +46,7 @@ function push(target: ValidationError[], type: string, field: string, message: s
 
 // ─── 子校验器 ─────────────────────────────────────────────
 
-function validateMeta(manifest: ComponentManifest, errors: ValidationError[], _warnings: ValidationError[]) {
+function validateMeta(manifest: ComponentManifest, errors: ValidationError[], warnings: ValidationError[]) {
     const t = manifest.type;
 
     if (!manifest.meta) {
@@ -69,6 +72,14 @@ function validateMeta(manifest: ComponentManifest, errors: ValidationError[], _w
         if (schemaType && typeof schemaType === 'string' && !VALID_JSON_SCHEMA_TYPES.includes(schemaType)) {
             push(errors, t, 'meta.valueSchema.type', `无效的 valueSchema type: ${schemaType}`, 'error');
         }
+    }
+
+    // trait ↔ valueSchema 交叉校验
+    const hasDataTrait = manifest.traits?.some(tr => DATA_TRAITS.includes(tr));
+    if (hasDataTrait && !manifest.meta.valueSchema) {
+        push(warnings, t, 'meta.valueSchema',
+            '声明了 DATA_FIELD 或 DATA_CONTAINER trait 但缺少 valueSchema——建议补充以供设计器和 AI 工具推断数据类型',
+            'warning');
     }
 
     return true;
