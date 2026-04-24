@@ -184,6 +184,43 @@ function validateRootPath(manifest: ComponentManifest, _errors: ValidationError[
     }
 }
 
+function validateSlots(manifest: ComponentManifest, errors: ValidationError[], warnings: ValidationError[]) {
+    const t = manifest.type;
+    const slots = manifest.slots;
+    if (!slots) return;
+
+    for (const [name, def] of Object.entries(slots)) {
+        if (!def) continue;
+
+        // title 必填（设计器 UI 需要）
+        if (!def.title) {
+            push(errors, t, `slots.${name}.title`, `插槽 "${name}" 缺少 title`, 'error');
+        }
+
+        // 动态 slot 必须声明 dynamicSource + dynamicKey
+        if (def.dynamic) {
+            if (!def.dynamicSource) {
+                push(errors, t, `slots.${name}.dynamicSource`, `动态插槽 "${name}" 缺少 dynamicSource`, 'error');
+            }
+            if (!def.dynamicKey) {
+                push(errors, t, `slots.${name}.dynamicKey`, `动态插槽 "${name}" 缺少 dynamicKey`, 'error');
+            }
+        }
+
+        // scoped slot 建议声明 scopeDescription
+        if (def.scoped && !def.scopeDescription) {
+            push(warnings, t, `slots.${name}.scopeDescription`,
+                `作用域插槽 "${name}" 建议声明 scopeDescription，帮助设计器用户理解作用域数据`,
+                'warning');
+        }
+
+        // allowedChildren 如果声明了必须是数组
+        if (def.allowedChildren !== undefined && !Array.isArray(def.allowedChildren)) {
+            push(errors, t, `slots.${name}.allowedChildren`, `插槽 "${name}" 的 allowedChildren 必须是字符串数组`, 'error');
+        }
+    }
+}
+
 function validateState(manifest: ComponentManifest, errors: ValidationError[], _warnings: ValidationError[]) {
     const t = manifest.type;
     const state = manifest.state;
@@ -215,6 +252,7 @@ function validateState(manifest: ComponentManifest, errors: ValidationError[], _
  * - adapter 与 events 对齐
  * - actions 声明完整性（title 必填，returns 建议）
  * - state 声明完整性（title + schema 必填）
+ * - slots 声明完整性（title 必填，动态/作用域规则）
  * - engine.render.injection.rootPath 声明提示
  */
 export function validateManifest(manifest: ComponentManifest): ValidationResult {
@@ -240,6 +278,9 @@ export function validateManifest(manifest: ComponentManifest): ValidationResult 
 
     // state
     validateState(manifest, errors, warnings);
+
+    // slots
+    validateSlots(manifest, errors, warnings);
 
     // rootPath
     validateRootPath(manifest, errors, warnings);
