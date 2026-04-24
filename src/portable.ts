@@ -16,3 +16,9 @@ export { COMPONENT_CATEGORY, CATEGORY_LABELS } from './types/category';
 export type { ComponentCategory } from './types/category';
 export { INJECT_PATH_SLOT_PROPS } from './components/core/types';
 export type { BaseUIProps } from './components/core/types';
+export {
+  validateManifest, validateManifests,
+  diagnoseMissingActionImpls, diagnoseMissingStateKeys,
+  printValidationResult, printSingleValidationResult,
+} from './validation/validateManifest';
+export type { ValidationError, ValidationResult } from './validation/validateManifest';
