@@ -21,6 +21,7 @@ const DATA_TRAITS = [COMPONENT_TRAIT.DATA_FIELD, COMPONENT_TRAIT.DATA_CONTAINER]
 
 const KNOWN_INJECT_PATHS = [INJECT_PATH_ROOT, INJECT_PATH_SLOT_PROPS];
 
+
 // ─── 公共类型 ─────────────────────────────────────────────
 
 export interface ValidationError {
@@ -188,9 +189,9 @@ function validateRootPath(manifest: ComponentManifest, _errors: ValidationError[
             '未声明 rootPath——引擎将在组件外层套 <div> 兆底。' +
             '推荐声明 INJECT_PATH_SLOT_PROPS 并在组件根节点透传 slotProps.root',
             'warning');
-    } else if (typeof rootPath === 'string' && !KNOWN_INJECT_PATHS.includes(rootPath) && !rootPath.includes('.')) {
+    } else if (typeof rootPath === 'string' && !KNOWN_INJECT_PATHS.includes(rootPath)) {
         push(warnings, t, 'engine.render.injection.rootPath',
-            `rootPath "${rootPath}" 不是已知的标准路径（${KNOWN_INJECT_PATHS.join(' | ')}），请确认拼写正确`,
+            `rootPath "${rootPath}"：请确保组件内部将该路径对应的 props 透传到根 DOM 节点。若已按规则实现可忽略此提示`,
             'warning');
     }
 }

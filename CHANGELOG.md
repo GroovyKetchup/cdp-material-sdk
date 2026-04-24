@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.4
+
+- 新增 `COMPONENT_STATE_KEY` 常量导出（`'__state'`），第三方作者可用于 `useImperativeHandle` 暴露运行时状态
+- `validateManifest` rootPath 校验调整：自定义路径改为指引性提示（"请确保透传到根 DOM 节点，若已实现可忽略"），不再暗示拼写错误
+- trait-valueSchema 交叉校验：`DATA_FIELD` / `DATA_CONTAINER` trait 未声明 `valueSchema` 时产生 warning
+
 ## 0.0.3
 
 - 新增 `validation/validateManifest` 校验模块，纯函数、零宿主依赖
