@@ -8,6 +8,9 @@ export const DYNAMIC_ENUM_KEY = 'x-dynamic-enum';
 export const SLOT_KEY = 'x-slot';
 export const INJECT_PATH_ROOT = '$root';
 
+/** useImperativeHandle 中用于暴露组件运行时状态的保留 key */
+export const COMPONENT_STATE_KEY = '__state' as const;
+
 export interface DynamicEnumConfig {
   source: string;
   valueKey: string;
