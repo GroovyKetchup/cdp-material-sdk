@@ -11,9 +11,12 @@
 
 import { COMPONENT_CATEGORY } from '../types/category';
 import type { ComponentManifest } from '../protocol/manifest';
-import { normalizeManifestEvents } from '../protocol/manifest';
+import { normalizeManifestEvents, INJECT_PATH_ROOT } from '../protocol/manifest';
+import { INJECT_PATH_SLOT_PROPS } from '../components/core/types';
 import { normalizeAdapterEvents } from '../protocol/adapter';
 import { isStandardEventKey, isCustomEventKey } from '../protocol/events';
+
+const KNOWN_INJECT_PATHS = [INJECT_PATH_ROOT, INJECT_PATH_SLOT_PROPS];
 
 // ─── 公共类型 ─────────────────────────────────────────────
 
@@ -165,6 +168,22 @@ function validateActions(manifest: ComponentManifest, errors: ValidationError[],
     }
 }
 
+function validateRootPath(manifest: ComponentManifest, _errors: ValidationError[], warnings: ValidationError[]) {
+    const t = manifest.type;
+    const rootPath = manifest.engine?.render?.injection?.rootPath;
+
+    if (!rootPath) {
+        push(warnings, t, 'engine.render.injection.rootPath',
+            '未声明 rootPath——引擎将在组件外层套 <div> 兆底。' +
+            '推荐声明 INJECT_PATH_SLOT_PROPS 并在组件根节点透传 slotProps.root',
+            'warning');
+    } else if (typeof rootPath === 'string' && !KNOWN_INJECT_PATHS.includes(rootPath) && !rootPath.includes('.')) {
+        push(warnings, t, 'engine.render.injection.rootPath',
+            `rootPath "${rootPath}" 不是已知的标准路径（${KNOWN_INJECT_PATHS.join(' | ')}），请确认拼写正确`,
+            'warning');
+    }
+}
+
 function validateState(manifest: ComponentManifest, errors: ValidationError[], _warnings: ValidationError[]) {
     const t = manifest.type;
     const state = manifest.state;
@@ -196,6 +215,7 @@ function validateState(manifest: ComponentManifest, errors: ValidationError[], _
  * - adapter 与 events 对齐
  * - actions 声明完整性（title 必填，returns 建议）
  * - state 声明完整性（title + schema 必填）
+ * - engine.render.injection.rootPath 声明提示
  */
 export function validateManifest(manifest: ComponentManifest): ValidationResult {
     const errors: ValidationError[] = [];
@@ -220,6 +240,9 @@ export function validateManifest(manifest: ComponentManifest): ValidationResult 
 
     // state
     validateState(manifest, errors, warnings);
+
+    // rootPath
+    validateRootPath(manifest, errors, warnings);
 
     return {
         valid: errors.length === 0,
