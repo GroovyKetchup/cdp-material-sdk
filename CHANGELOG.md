@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.0.9
+
+- 新增 `useFieldRegistry` hook 并从 `cdp-material-sdk/host-react` 导出
+  - 与 `DataScope` 配套，给数据容器组件提供引用稳定的字段注册表（`registerField` / `unregisterField` / `getFieldState` / `getAllFieldStates` / `clearRegistry`）
+  - 内部用 `useRef` + `useCallback` 实现，避免数据容器在每次 render 重新生成回调；不再暴露 `registryRef`，保持封装
+  - 主仓 Form / Wizard 等数据容器已收敛到该 hook，第三方数据容器组件作者可一行接通字段状态聚合
+- 文档完善（`docs/component-development/`）
+  - 新增 recipe `声明props.md`：阐明 manifest `props` 与 React props 的边界、JSON Schema 用法、与 trait 自动注入字段的协作、`adapter.propMapping` / `mapProps` 的取舍
+  - 重写 recipe `使用Adapter适配组件API.md`：明确 adapter / wrapper / mapProps 的决策框架——事件层优先 adapter、props 层 rename 优先 adapter、值变换走 wrapper、结构层永远 wrapper
+  - 更新 recipe `声明数据字段组件.md`：补充 `DATA_FIELD` trait 自动注入字段（`value` / `readOnly` / `required` / `name` / `label` / `labelStrategy` 等）的边界，提示作者无需重复声明
+  - 更新 recipe `声明数据容器组件.md`：示例改为从 SDK 导入 `useFieldRegistry`，展示 Form 整体校验的标准模式
+  - 更新 recipe `配置Loading策略.md`：新增 `useConcurrentLoading` / `useDualLoading` 实战示例与 manifest 策略搭配表
+  - 更新 reference `SDK导入边界.md`：portable 入口补 `useConcurrentLoading` / `useDualLoading`，host-react 入口补 `useFieldRegistry` 与完整导出面
+  - 更新 reference `Traits能力模型.md`：保持纯契约视角，剥离实现工具描述
+  - 微调 reference `Manifest字段参考.md`、组件开发指南 `README.md`
+
 ## 0.0.8
 
 - 修复 0.0.7 发布失败：CI 改为直接使用 Node 24（自带 npm 11.x），不再尝试在 Node 22 之上原地升级 npm（原地升级会触发 `Cannot find module 'promise-retry'` 模块解析错误）
