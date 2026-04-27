@@ -9,3 +9,7 @@ export { DataContainerRuntimeContext } from './context/DataContainerRuntimeConte
 export type { DataContainerRuntimeContextValue } from './context/DataContainerRuntimeContext';
 export { useDataContainer, useDataContainerApi, resolveDataContainerRuntimeValue, shouldUseDataContainerRuntimeFallback } from './hooks/useDataContainer';
 export type { UseDataContainerApiResult, UseDataContainerResult } from './hooks/useDataContainer';
+export { DataScope } from './components/data-scope/DataScope';
+export type { DataScopeProps } from './components/data-scope/DataScope';
+export { DataScopeContext } from './context/DataScopeContext';
+export type { DataScopeContextValue, FieldState, LazyScope, PathResolver } from './context/DataScopeContext';
