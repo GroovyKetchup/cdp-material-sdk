@@ -1,8 +1,11 @@
 {
   "name": "cdp-material-sdk",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "MIT",
-  "private": true,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/GroovyKetchup/cdp-material-sdk.git"
@@ -36,6 +39,7 @@
   },
   "files": [
     "dist",
+    "docs/component-development",
     "README.md",
     "LICENSE"
   ],

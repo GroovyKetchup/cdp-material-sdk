@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.0.5
+
+- 新增 `DataScope` helper 与 `DataScopeContext` 导出（`cdp-material-sdk/host-react`）
+  - 数据容器组件可通过 `DataScope` 一行接通字段路径解析、`record` 注入、字段状态注册
+  - 自动从最近一层 `DataContainerRuntimeContext` 取 `componentId`，无需手动透传
+- `validateManifest`：组件未声明事件时不再产生 warning（事件本就是可选能力，避免噪音）
+- `validateManifest`：修正 rootPath 缺失提示中的「兆底」错别字为「兜底」
+- 启用 npm publish：通过 GitHub Actions OIDC + provenance 自动发布到 npm
+  - `package.json` 加入 `publishConfig` (access: public, provenance: true)
+  - `.github/workflows/release.yml` 在打 `v*` tag 时自动 `npm publish`
+  - 安装方式由 GitHub Release `.tgz` 切换为 `npm install cdp-material-sdk@latest`
+- 新增组件开发指南 `docs/component-development/`
+  - getting-started 5 篇：从工程接入到自检排错
+  - recipes 11 篇：数据字段 / 数据容器 / 布局容器 / 事件 / 动作与状态 / 插槽 / 设计器元信息 / Adapter / Loading / DOM 注入 / 第三方库接入
+  - reference 11 篇：Manifest 字段、Traits、Events、Actions+State、Slots、Loading、DOM 注入、SDK 导入边界、validateManifest 校验规则等
+  - 含 FAQ 与示例索引
+
 ## 0.0.4
 
 - 新增 `COMPONENT_STATE_KEY` 常量导出（`'__state'`），第三方作者可用于 `useImperativeHandle` 暴露运行时状态
