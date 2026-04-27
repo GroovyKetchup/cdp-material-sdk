@@ -1,9 +1,15 @@
 # Changelog
 
-## 0.0.6
+## 0.0.7
+
+- 修复 0.0.6 发布失败：CI 中升级 npm 到最新版（Trusted Publishing 在 publish 时认证需要 npm 11.5.1+，Node 22 LTS 自带的 npm 10.x 不支持）
+- 0.0.6 的 publish 在 npm registry 端被 404 拒绝（实际为 OIDC 认证失败），未在 npm 上生效；本版本作为 0.0.6 的修复重发
+
+## 0.0.6 [发布失败]
 
 - 切换 npm 发布到 Trusted Publishing：CI 通过 GitHub OIDC 直接认证 npm，不再依赖 `NPM_TOKEN` secret
 - 本版本仅用于验证 OIDC 发布链路，无运行时变更
+- npm publish 因 CI 中 npm CLI 版本过旧（10.x）而失败，未发布到 npm；由 0.0.7 修复重发
 
 ## 0.0.5
 
