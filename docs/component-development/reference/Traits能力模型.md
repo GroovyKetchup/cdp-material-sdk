@@ -37,15 +37,52 @@ Traits 之间不互斥，一个组件可以同时声明多个 trait。例如 For
 
 - 声明 `COMPONENT_TRAIT.DATA_FIELD`。
 - 声明 `meta.valueSchema`。
-- 组件接收 `value`。
-- 值变化时调用 `onChange(nextValue)`。
+- 组件接收并渲染 `value`，值变化时调用 `onChange(nextValue)`。
+- 如组件支持只读/必填/标签语义，分别接收 `readOnly` / `required` / `label`；置于数据容器内时支持 `name`。
+
+下列 props / actions / state / events 由引擎在声明 `DATA_FIELD` 后**自动注入并合并到 manifest**，作者一般**不需要**在自己的 manifest 中重复声明——重复声明会**覆盖**引擎注入的版本（包括 `valueSchema` 自动特化），破坏对外行为一致性。仅当组件**确有特化需求**（例如定制 `setValue.params` 取值规则）时，才建议显式声明覆盖：
+
+#### 自动注入的 props
+
+| Prop | 类型 | 说明 |
+|------|------|------|
+| `value` | 由 `meta.valueSchema` 决定 | 字段当前值 |
+| `readOnly` | `boolean` | 是否只读 |
+| `required` | `boolean` | 是否必填 |
+| `name` | `string` | 字段名（容器内组织值用） |
+| `label` | `string` | 显示标签 |
+| `labelStrategy` | 标签策略对象 | 字段级标签策略局部覆盖；未设置时向上继承（FieldLayout / Form / Page / 默认） |
+
+#### 自动注入的 actions
+
+| Action | 说明 |
+|--------|------|
+| `getValue` | 获取当前值；返回类型由 `valueSchema` 特化 |
+| `setValue({ value, triggerEvent? })` | 设置值；返回 `{ newValue, oldValue }`；`triggerEvent` 默认 `true` |
+| `getReadOnly` / `setReadOnly({ readOnly })` / `toggleReadOnly` | 只读状态读写与切换 |
+| `getRequired` / `setRequired({ required })` / `toggleRequired` | 必填状态读写与切换 |
+| `triggerValueChange({ newValue?, oldValue? })` | 手动触发 `valueChange` 事件，用于 `updateFields` / 直写 Store 等绕过 `setValue` 的场景 |
+
+#### 自动注入的 state
+
+| State | Schema | 说明 |
+|-------|--------|------|
+| `value` | `meta.valueSchema` | 当前值；schema 由 `valueSchema` 自动透传 |
+| `readOnly` | `boolean` | 当前只读状态 |
+| `required` | `boolean` | 当前必填状态 |
+
+#### 自动注入的 events
+
+| Event | 说明 |
+|-------|------|
+| `valueChange` | 值变更事件；`onChange(nextValue)` 或 `setValue` 默认触发；可被事件编排消费 |
 
 ### 宿主可据此做什么
 
-- 注入和回写字段值。
-- 在数据容器内按字段名组织值。
-- 让表达式、设计器和 AI 工具识别 value 类型。
-- 基于 `valueSchema` 推断标准 value 状态。
+- 注入和回写字段值，在数据容器内按 `name` 组织值。
+- 让表达式、设计器和 AI 工具识别 value 类型与字段语义。
+- 基于 `valueSchema` 自动特化 `getValue` / `setValue` / `state.value` 的类型描述。
+- 统一管理只读/必填状态，支持事件编排基于 `readOnly` / `required` / `value` 状态联动。
 
 ---
 

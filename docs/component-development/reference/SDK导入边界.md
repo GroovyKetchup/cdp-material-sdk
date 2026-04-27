@@ -31,6 +31,7 @@ related:
 - `validateManifest()`
 - `diagnoseMissingActionImpls()`
 - `diagnoseMissingStateKeys()`
+- `useConcurrentLoading` / `useDualLoading`（组件自实现 loading 时的开箱即用 hook）
 
 示例：
 
@@ -53,10 +54,10 @@ import {
 
 可用于：
 
-- `DataScope`
-- `useDataContainer`
-- `useDataContainerApi`
-- `PageContext`
+- `DataScope` / `DataScopeContext` / 类型 `FieldState` / `LazyScope` / `PathResolver`
+- `useDataContainer` / `useDataContainerApi`
+- `useFieldRegistry`（与 `DataScope` 配套，给数据容器组件聚合子字段状态）
+- `PageContext` / `DataContainerRuntimeContext`
 
 如果不能确认共享 runtime，请不要使用该入口。
 

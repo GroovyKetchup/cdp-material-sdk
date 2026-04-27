@@ -22,7 +22,7 @@ related:
 | `alias` | `string[]` | 否 | 历史别名或兼容名 |
 | `meta` | `object` | 是 | 基本信息 |
 | `traits` | `ComponentTrait[]` | 否 | 能力声明 |
-| `props` | `ObjectSchema` | 否 | 可配置 props 的 JSON Schema |
+| `props` | `ObjectSchema` | 否 | 可配置 props 的 JSON Schema，详见 [声明 props](../recipes/声明props.md) |
 | `events` | `EventSpec[]` | 否 | 标准事件声明 |
 | `customEvents` | `Record<string, CustomEventSpec>` | 否 | 自定义事件声明 |
 | `actions` | `Record<string, ActionSpec>` | 否 | 组件动作声明 |
@@ -245,6 +245,7 @@ export const manifest = {
 本文档只保留本层级职责内容：Recipe 提供任务步骤，Reference 提供稳定模型和规则，validateManifest 文档提供校验级别事实源。
 
 - 关联文档：[03-开发最小可运行组件](../getting-started/03-开发最小可运行组件.md)
+- 任务 Recipe：[声明 props](../recipes/声明props.md)
 - 任务 Recipe：[声明布局容器组件](../recipes/声明布局容器组件.md)
 - 任务 Recipe：[配置设计器元信息](../recipes/配置设计器元信息.md)
 - 校验规则：[validateManifest校验规则](./validateManifest校验规则.md)

@@ -147,6 +147,102 @@ actions: {
 
 ---
 
+## 自实现 loading 的 hook
+
+`none` 策略下组件得自己维护 loading state。SDK 在 `cdp-material-sdk/portable` 提供两个**纯 React、无宿主耦合**的便利 hook，避免每家组件重复实现引用计数与 dual-loading 合并逻辑。
+
+### useConcurrentLoading：并发动作 loading
+
+适合按钮上同时挂多个异步动作、或同一组件可能并发触发多次请求的场景。返回的 `startLoading` / `stopLoading` 是**引用计数式**的——后到的 stop 不会误清先到的 start。
+
+```tsx
+import { useConcurrentLoading } from 'cdp-material-sdk/portable';
+
+export function AcmePanel() {
+  const { isLoading, loadingText, startLoading, stopLoading } = useConcurrentLoading();
+
+  const handleSave = async () => {
+    startLoading('保存中…');
+    try {
+      await saveToServer();
+    } finally {
+      stopLoading();
+    }
+  };
+
+  return (
+    <button disabled={isLoading} onClick={handleSave}>
+      {isLoading ? loadingText ?? '处理中…' : '保存'}
+    </button>
+  );
+}
+```
+
+返回值要点：
+
+- `isLoading` 是触发重渲染的状态值，可直接驱动 UI。
+- `getLoading()` 是 ref 读取，适合放进 `useCallback`、事件处理器中按需读取，无需进依赖列表。
+- `loadingText` 由最近一次 `startLoading(text)` 设置；不传 `text` 则保持上次值。
+
+### useDualLoading：动作 loading 与数据 loading 分离
+
+适合 Table、查询面板这类**同时存在「按钮触发的动作」与「后台数据请求」**的组件。两类 loading 单独建模，但对外仍暴露统一的 `isLoading`。
+
+```tsx
+import { useEffect } from 'react';
+import { useDualLoading } from 'cdp-material-sdk/portable';
+
+export function AcmeTable({ query }) {
+  const {
+    actionLoading,         // 动作触发的 loading（引用计数）
+    startActionLoading,
+    stopActionLoading,
+    dataLoading,           // 数据请求 loading（布尔）
+    setDataLoading,
+    isLoading,             // 二者的 OR
+    isLoadingRef,          // 引用稳定的最新值
+  } = useDualLoading();
+
+  // 数据请求：标记 dataLoading
+  useEffect(() => {
+    let cancelled = false;
+    setDataLoading(true);
+    fetchRows(query).finally(() => {
+      if (!cancelled) setDataLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [query, setDataLoading]);
+
+  // 行内动作：标记 actionLoading
+  const handleRowDelete = async (id: string) => {
+    startActionLoading('删除中…');
+    try {
+      await deleteRow(id);
+    } finally {
+      stopActionLoading();
+    }
+  };
+
+  return <TableUi loading={isLoading} onDelete={handleRowDelete} />;
+}
+```
+
+要点：
+
+- 用 `dataLoading` 表达「后台拉数据」，用 `actionLoading` 表达「用户动作触发的并发任务」，二者互不污染。
+- 对外通过 `isLoading` 对接 UI 即可，不必在外层组合两个布尔。
+- `isLoadingRef.current` 提供引用稳定的最新值，方便在事件回调里判断「当前是否仍处于 loading」而不必把状态加进依赖列表。
+
+### 与 manifest loading 策略的搭配
+
+| 场景 | manifest 策略 | hook |
+|------|---------------|------|
+| 完全交给宿主 | `native` 或 `wrapper` | 不需要 |
+| 宿主只接管视觉、组件内部仍想细分 loading | `wrapper` + 这两个 hook | `useConcurrentLoading` 或 `useDualLoading`，组件内部用 hook 状态驱动局部 UI，宿主负责整体遮罩 |
+| 完全自管 | `none` + 自定义 `setLoading` / `getLoading` actions | 推荐 `useConcurrentLoading`；用 hook 的 `getLoading` 实现 action 的 `getLoading`，用 `startLoading` / `stopLoading` 实现 action 的 `setLoading` |
+
+---
+
 ## 选择表
 
 | 组件情况 | 推荐策略 |

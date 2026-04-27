@@ -57,6 +57,16 @@
 - [声明插槽](./recipes/声明插槽.md)
 - [Traits 能力模型](./reference/Traits能力模型.md)
 
+### 我要声明组件对外的可配置项（props）
+
+`props` 是组件向设计器、表达式和 AI 工具暴露的可配置项契约（标准 JSON Schema）。
+
+阅读：
+
+- [声明 props](./recipes/声明props.md)
+- [Manifest 字段参考](./reference/Manifest字段参考.md)
+- [Traits 能力模型](./reference/Traits能力模型.md)（理解 trait 自动注入 props 的边界）
+
 ### 我要调整组件在设计器中的展示
 
 阅读：
