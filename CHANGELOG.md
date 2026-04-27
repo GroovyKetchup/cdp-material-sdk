@@ -1,9 +1,13 @@
 # Changelog
 
-## 0.0.7
+## 0.0.8
 
-- 修复 0.0.6 发布失败：CI 中升级 npm 到最新版（Trusted Publishing 在 publish 时认证需要 npm 11.5.1+，Node 22 LTS 自带的 npm 10.x 不支持）
-- 0.0.6 的 publish 在 npm registry 端被 404 拒绝（实际为 OIDC 认证失败），未在 npm 上生效；本版本作为 0.0.6 的修复重发
+- 修复 0.0.7 发布失败：CI 改为直接使用 Node 24（自带 npm 11.x），不再尝试在 Node 22 之上原地升级 npm（原地升级会触发 `Cannot find module 'promise-retry'` 模块解析错误）
+
+## 0.0.7 [发布失败]
+
+- 尝试通过在 CI 里 `npm install -g npm@latest` 升级 npm 以支持 OIDC Trusted Publishing
+- 该升级步骤在 Node 22 上失败（npm 自我替换过程中模块树损坏），未走到 publish；由 0.0.8 修复重发
 
 ## 0.0.6 [发布失败]
 
