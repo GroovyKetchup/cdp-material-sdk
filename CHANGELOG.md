@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.6
+
+- 切换 npm 发布到 Trusted Publishing：CI 通过 GitHub OIDC 直接认证 npm，不再依赖 `NPM_TOKEN` secret
+- 本版本仅用于验证 OIDC 发布链路，无运行时变更
+
 ## 0.0.5
 
 - 新增 `DataScope` helper 与 `DataScopeContext` 导出（`cdp-material-sdk/host-react`）
