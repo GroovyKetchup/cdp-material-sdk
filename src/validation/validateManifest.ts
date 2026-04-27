@@ -92,9 +92,7 @@ function validateEvents(manifest: ComponentManifest, errors: ValidationError[], 
     const declaredStandardTypes = new Set(normalized.standard.map(e => e.type));
     const declaredCustomTypes = new Set(normalized.custom.map(e => e.type));
 
-    if (normalized.all.length === 0) {
-        push(warnings, t, 'events', '组件没有声明任何事件', 'warning');
-    } else {
+    if (normalized.all.length > 0) {
         normalized.standard.forEach((evt, i) => {
             if (!evt.type) {
                 push(errors, t, `events[${i}].type`, '事件类型不能为空', 'error');
@@ -186,7 +184,7 @@ function validateRootPath(manifest: ComponentManifest, _errors: ValidationError[
 
     if (!rootPath) {
         push(warnings, t, 'engine.render.injection.rootPath',
-            '未声明 rootPath——引擎将在组件外层套 <div> 兆底。' +
+            '未声明 rootPath——引擎将在组件外层套 <div> 兜底。' +
             '推荐声明 INJECT_PATH_SLOT_PROPS 并在组件根节点透传 slotProps.root',
             'warning');
     } else if (typeof rootPath === 'string' && !KNOWN_INJECT_PATHS.includes(rootPath)) {
