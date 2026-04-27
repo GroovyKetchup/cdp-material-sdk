@@ -13,3 +13,5 @@ export { DataScope } from './components/data-scope/DataScope';
 export type { DataScopeProps } from './components/data-scope/DataScope';
 export { DataScopeContext } from './context/DataScopeContext';
 export type { DataScopeContextValue, FieldState, LazyScope, PathResolver } from './context/DataScopeContext';
+export { useFieldRegistry } from './hooks/useFieldRegistry';
+export type { UseFieldRegistryResult } from './hooks/useFieldRegistry';
