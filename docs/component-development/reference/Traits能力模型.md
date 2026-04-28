@@ -22,7 +22,7 @@ Traits 之间不互斥，一个组件可以同时声明多个 trait。例如 For
 |-------|------|----------|------------|
 | `Data.Field` | `COMPONENT_TRAIT.DATA_FIELD` | Input、Select、Switch、DatePicker | 组件是一个数据字段 |
 | `Data.Container` | `COMPONENT_TRAIT.DATA_CONTAINER` | Form、Table、List、CardList | 组件管理一组数据作用域 |
-| `Layout.Container` | `COMPONENT_TRAIT.LAYOUT_CONTAINER` | Card、Grid、Tabs、Collapse | 组件可以承载子组件或插槽内容 |
+| `Layout.Container` | `COMPONENT_TRAIT.LAYOUT_CONTAINER` | 通用容器：Card、Grid、Section；强组合关系：Tabs、Steps、Form（带 `nesting` 类型约束） | 组件具备**默认 children 区域**（与 `manifest.slots` 是两条独立机制） |
 | `Interaction.Clickable` | `COMPONENT_TRAIT.INTERACTION_CLICKABLE` | Button、Link、ClickableCard | 组件具备点击交互语义 |
 
 ---
@@ -112,14 +112,20 @@ Traits 之间不互斥，一个组件可以同时声明多个 trait。例如 For
 
 ### 什么时候声明
 
-组件可以承载子组件、插槽或模板内容。
+组件需要一个**默认 children 区域**：设计器中拖入的子节点会被宿主递归渲染并作为 React `children` 传入。
+
+只通过命名 / 作用域 / 动态插槽承载子内容的组件**不需要**声明此 trait，直接通过 `manifest.slots` 即可。
 
 ### 作者要做什么
 
 - 声明 `COMPONENT_TRAIT.LAYOUT_CONTAINER`。
-- 在组件实现中渲染 `children`（单一区域）或对应 slot 内容（多具名区域）。
-- 需要限制子组件类型、最少/最多数量、或能作为子节点的父组件时，声明 `nesting`。
+- 在组件实现中渲染 `children`。
+- 需要限制默认 children 区域的子组件类型、最少/最多数量、或能作为子节点的父组件时，声明 `nesting`。
 - 详细任务步骤见 [声明布局容器组件](../recipes/声明布局容器组件.md)。
+
+### 与 slots 的关系
+
+宿主在运行时独立判断 `LAYOUT_CONTAINER` trait 与 `manifest.slots`：前者控制默认 children 区域，后者控制具名插槽。两者可以并存，也可以独立使用。
 
 ### 宿主可据此做什么
 
@@ -170,9 +176,11 @@ meta: {
 | 组件场景 | 推荐 traits |
 |----------|-------------|
 | 输入框、选择器、开关 | `DATA_FIELD` |
-| 表单 | `DATA_CONTAINER` + `LAYOUT_CONTAINER` |
-| 表格、列表 | `DATA_CONTAINER`，按需加 `LAYOUT_CONTAINER` |
-| 卡片、栅格、Tabs | `LAYOUT_CONTAINER` |
+| 表单 | `DATA_CONTAINER` + `LAYOUT_CONTAINER`（搭配 `nesting.allowedChildren` 锁定 FormItem 等） |
+| 表格、列表 | `DATA_CONTAINER`，列/行模板用动态 / 作用域 `slots` |
+| 卡片、栅格、Section（通用 children 区域） | `LAYOUT_CONTAINER` |
+| Tabs / Steps / Collapse（强组合关系） | `LAYOUT_CONTAINER` + `nesting`（子/父类型约束） |
+| Modal / Card 的多具名扩展区（header / footer） | `slots` |
 | 按钮、链接 | `INTERACTION_CLICKABLE` |
 | 普通文本展示 | 可不声明 |
 
@@ -184,7 +192,7 @@ meta: {
 |------|------|
 | `DATA_FIELD` | 仅用于有主要业务值且能回写的组件 |
 | `DATA_CONTAINER` | 用于管理子字段数据作用域；必须在子组件渲染区域提供 `DataScope`。与 `LAYOUT_CONTAINER` 不互斥，Form 这类容器应同时声明 |
-| `LAYOUT_CONTAINER` | 表示可承载子内容；有明确区域时建议同时声明 slots |
+| `LAYOUT_CONTAINER` | 控制**默认 children 区域**开关，仅影响 `schema.children` 是否被宿主递归渲染。具名子区域走 `manifest.slots`，与本 trait 互不依赖 |
 | `INTERACTION_CLICKABLE` | 表示具备点击语义；需要编排响应时再声明 click event |
 
 数据 trait 与 `meta.valueSchema` 的校验级别见 [validateManifest 校验规则](./validateManifest校验规则.md)。
