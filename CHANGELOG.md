@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.10
+
+- 文档完善（`docs/component-development/`，仅文档变更，无运行时改动）
+  - recipe `声明数据字段组件.md`：新增 `placeholder` 可见性约定——**仅在可编辑态显示**，`readOnly` / `disabled` 等非编辑态默认隐藏占位提示，避免与已锁定的真实值混淆。同步更新作者职责、示例代码、自检清单与常见错误。
+  - recipe `声明布局容器组件.md` / 相关 reference：厘清 `LAYOUT_CONTAINER` 与 slots 的关系，补全 DSL 场景归类原则（详见 cbe8675）。
+
 ## 0.0.9
 
 - 新增 `useFieldRegistry` hook 并从 `cdp-material-sdk/host-react` 导出
