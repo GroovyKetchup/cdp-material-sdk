@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.0
+
+- 新增 `OPTIONS_FETCH` 引擎事件（`ENGINE_EVENT_TYPE.OPTIONS_FETCH`），用于远程选项数据拉取
+  - `EngineEventProtocol` 新增对应 payload 类型，含 `panelCode` / `fieldName` / `condition` / `keyword` / `extraFieldNames`
+  - 保留 `fieldInfo` 字段（标记 deprecated）以兼容历史事件指令脚本
+- `RemoteOptionConfigSchema` 新增 `extraFieldNames` 字段，支持随选项返回额外字段（如 code、status 等）
+
 ## 0.0.10
 
 - 文档完善（`docs/component-development/`，仅文档变更，无运行时改动）

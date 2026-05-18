@@ -34,6 +34,18 @@ export interface EngineEventProtocol {
     pageSize?: number;
     orderBy?: Array<Record<string, unknown>>;
     advancedConditions?: Record<string, unknown>;
+  };
+  [ENGINE_EVENT_TYPE.OPTIONS_FETCH]: {
+    panelCode: string;
+    fieldName: string;
+    condition?: Record<string, any>;
+    keyword?: string;
+    extraFieldNames?: string[];
+    /**
+     * @deprecated 历史字段，等价于 `{ fieldName }`。早期此事件挂在 DATA_FETCH 下，
+     * 老的事件指令脚本可能从 payload.fieldInfo.fieldName 取值。
+     * 运行时会与 `fieldName` 一并发送以保证向后兼容，新代码请直接读取顶层 `fieldName`。
+     */
     fieldInfo?: {
       fieldName: string;
     };

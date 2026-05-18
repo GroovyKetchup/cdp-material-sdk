@@ -21,4 +21,5 @@ export const ENGINE_EVENT_TYPE = {
   ITEM_RIGHT_CLICK: 'itemRightClick',
   ITEM_LONG_PRESS: 'itemLongPress',
   DATA_FETCH: 'dataFetch',
+  OPTIONS_FETCH: 'optionsFetch',
 } as const;

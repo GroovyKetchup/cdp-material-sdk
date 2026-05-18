@@ -21,6 +21,12 @@ export const RemoteOptionConfigSchema = {
   properties: {
     panelCode: { type: 'string', title: '面板代码' },
     fieldName: { type: 'string', title: '字段名称' },
+    extraFieldNames: {
+      type: 'array',
+      title: '额外字段',
+      description: '额外随每个选项返回的字段名（如 code、status 等），用于自定义显示格式或后续业务取用。',
+      items: { type: 'string' },
+    },
     condition: {
       type: 'object',
       title: '查询条件',
