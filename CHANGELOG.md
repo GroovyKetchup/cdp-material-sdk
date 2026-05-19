@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.1
+- 删除 `RemoteOptionConfigSchema`
+
 ## 0.1.0
 
 - 新增 `OPTIONS_FETCH` 引擎事件（`ENGINE_EVENT_TYPE.OPTIONS_FETCH`），用于远程选项数据拉取
