@@ -11,6 +11,18 @@ export const INJECT_PATH_ROOT = '$root';
 /** useImperativeHandle 中用于暴露组件运行时状态的保留 key */
 export const COMPONENT_STATE_KEY = '__state' as const;
 
+export const FIELD_ROLE_KEY = 'x-fieldRole';
+
+export const DATA_FIELD_ROLE = {
+  ATTRIBUTE: 'attribute',
+  DIMENSION: 'dimension',
+  MEASURE: 'measure',
+} as const;
+
+export type DataFieldRole = typeof DATA_FIELD_ROLE[keyof typeof DATA_FIELD_ROLE];
+export type DataSourceFieldRoleFilter =
+  | typeof DATA_FIELD_ROLE.DIMENSION
+  | typeof DATA_FIELD_ROLE.MEASURE;
 export interface DynamicEnumConfig {
   source: string;
   valueKey: string;
@@ -23,6 +35,7 @@ export interface ExtendedJSONSchema7 extends JSONSchema7 {
   allowedTabs?: string[];
   'x-editableSelectOptions'?: Array<{ value: string; label: string }>;
   placeholder?: string;
+  [FIELD_ROLE_KEY]?: DataSourceFieldRoleFilter;
 }
 
 export interface StandardEventDeclaration {
