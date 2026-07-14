@@ -56,7 +56,6 @@
 - [声明布局容器组件](./recipes/声明布局容器组件.md)
 - [声明插槽](./recipes/声明插槽.md)
 - [Traits 能力模型](./reference/Traits能力模型.md)
-- [层级下钻能力模型](./reference/层级下钻能力模型.md)
 
 ### 我要声明组件对外的可配置项（props）
 
@@ -83,6 +82,13 @@
 
 - [声明事件](./recipes/声明事件.md)
 - [Events 模型](./reference/Events模型.md)
+
+### 我要让组件支持层级下钻
+
+阅读：
+
+- [声明层级下钻能力](./recipes/声明层级下钻能力.md)
+- [层级下钻能力模型](./reference/层级下钻能力模型.md)
 
 ### 我要让流程或 AI 调用组件方法
 

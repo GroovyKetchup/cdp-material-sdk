@@ -10,13 +10,14 @@ export const DRILL_STATE = {
 
 export const DRILL_EVENT = {
   NAVIGATE_REQUEST: 'drill:navigateRequest',
+  RESET_REQUEST: 'drill:resetRequest',
 } as const;
 
 export interface DrillFrame {
   level: string;
   key: string | number;
   label: string;
-  record?: Record<string, unknown>;
+  record?: unknown;
 }
 
 export interface DrillNavigateRequest {
@@ -32,6 +33,7 @@ export interface DrillPopToParams {
 }
 
 export interface DrillRuntimeProps {
-  drillPath?: DrillFrame[];
+  drillPath?: readonly DrillFrame[];
   onDrillNavigateRequest?: (request: DrillNavigateRequest) => void;
+  onDrillResetRequest?: () => void;
 }

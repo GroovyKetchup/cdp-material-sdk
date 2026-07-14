@@ -16,5 +16,8 @@ test('portable entry exports the drill contract', () => {
     RESET: 'drillReset',
   });
   assert.deepEqual(DRILL_STATE, { PATH: 'drillPath' });
-  assert.deepEqual(DRILL_EVENT, { NAVIGATE_REQUEST: 'drill:navigateRequest' });
+  assert.deepEqual(DRILL_EVENT, {
+    NAVIGATE_REQUEST: 'drill:navigateRequest',
+    RESET_REQUEST: 'drill:resetRequest',
+  });
 });
