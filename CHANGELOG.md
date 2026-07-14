@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- 新增 `INTERACTION_DRILLABLE` trait 及下钻公共契约，供宿主 Feature 与外置组件通过受控 props、actions、state 和导航请求事件协作。
+- 新增《层级下钻能力模型》，明确 SDK、宿主和外置 UI 库的边界。
+
 ## 0.1.1
 - 删除 `RemoteOptionConfigSchema`
 

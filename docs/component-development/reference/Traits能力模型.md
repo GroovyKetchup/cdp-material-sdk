@@ -24,6 +24,7 @@ Traits 之间不互斥，一个组件可以同时声明多个 trait。例如 For
 | `Data.Container` | `COMPONENT_TRAIT.DATA_CONTAINER` | Form、Table、List、CardList | 组件管理一组数据作用域 |
 | `Layout.Container` | `COMPONENT_TRAIT.LAYOUT_CONTAINER` | 通用容器：Card、Grid、Section；强组合关系：Tabs、Steps、Form（带 `nesting` 类型约束） | 组件具备**默认 children 区域**（与 `manifest.slots` 是两条独立机制） |
 | `Interaction.Clickable` | `COMPONENT_TRAIT.INTERACTION_CLICKABLE` | Button、Link、ClickableCard | 组件具备点击交互语义 |
+| `Interaction.Drillable` | `COMPONENT_TRAIT.INTERACTION_DRILLABLE` | Chart、Table、CardList | 宿主为组件实例提供受控下钻路径、动作和导航请求事件 |
 
 ---
 
@@ -154,6 +155,23 @@ Traits 之间不互斥，一个组件可以同时声明多个 trait。例如 For
 
 ---
 
+## INTERACTION_DRILLABLE
+
+### 什么时候声明
+
+组件能够沿数据层级进入下一层并返回历史层，例如图表维度下钻、表格或卡片列表的下一级记录。
+
+### 作者要做什么
+
+- 声明 `COMPONENT_TRAIT.INTERACTION_DRILLABLE`。
+- 接收宿主注入的 `drillPath`，并以适合自身布局的方式展示路径。
+- 用户选择历史层时调用 `onDrillNavigateRequest({ index })`。
+- 不在组件内部维护第二份路径状态，也不在 manifest 重复声明 trait 自动提供的 props、event、actions 和 state。
+
+完整契约与编排边界见 [层级下钻能力模型](./层级下钻能力模型.md)。
+
+---
+
 ## Traits 与 valueSchema
 
 声明 `DATA_FIELD` 或 `DATA_CONTAINER` 时，建议同时声明 `meta.valueSchema`。
@@ -194,6 +212,7 @@ meta: {
 | `DATA_CONTAINER` | 用于管理子字段数据作用域；必须在子组件渲染区域提供 `DataScope`。与 `LAYOUT_CONTAINER` 不互斥，Form 这类容器应同时声明 |
 | `LAYOUT_CONTAINER` | 控制**默认 children 区域**开关，仅影响 `schema.children` 是否被宿主递归渲染。具名子区域走 `manifest.slots`，与本 trait 互不依赖 |
 | `INTERACTION_CLICKABLE` | 表示具备点击语义；需要编排响应时再声明 click event |
+| `INTERACTION_DRILLABLE` | 表示具备层级下钻语义；宿主维护路径状态，组件只做受控展示与导航请求 |
 
 数据 trait 与 `meta.valueSchema` 的校验级别见 [validateManifest 校验规则](./validateManifest校验规则.md)。
 

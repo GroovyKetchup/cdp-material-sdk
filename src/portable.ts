@@ -7,6 +7,7 @@ export * from './hooks/useConcurrentLoading';
 export * from './hooks/useDualLoading';
 export * from './protocol/adapter';
 export * from './protocol/common-schemas';
+export * from './protocol/drill';
 export * from './protocol/events';
 export * from './protocol/manifest';
 export * from './protocol/manifest-types';

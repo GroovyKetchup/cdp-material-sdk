@@ -56,6 +56,7 @@
 - [声明布局容器组件](./recipes/声明布局容器组件.md)
 - [声明插槽](./recipes/声明插槽.md)
 - [Traits 能力模型](./reference/Traits能力模型.md)
+- [层级下钻能力模型](./reference/层级下钻能力模型.md)
 
 ### 我要声明组件对外的可配置项（props）
 
