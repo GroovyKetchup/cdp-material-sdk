@@ -106,7 +106,7 @@ adapter: {
 
 ### 标准事件 — 改名 + payload 重塑
 
-第三方组件回调签名是 `(event, value) => void`，但 CDP `valueChange` 的 payload 形状是 `{ newValue, oldValue }`：
+第三方组件回调签名是 `(event, value) => void`。`valueChange` 特殊：`transform` 只负责提取「新值」，最终 `{ newValue, oldValue }` 由宿主组装（`oldValue` 来自宿主 value ref）：
 
 ```ts
 events: {
@@ -116,13 +116,13 @@ adapter: {
   events: {
     valueChange: {
       propName: 'onSelectedValueChange',
-      transform: (event, value) => ({ newValue: value, oldValue: undefined }),
+      transform: (event, value) => value,
     },
   },
 },
 ```
 
-`transform` 的返回类型由 `EngineEventProtocol['valueChange']` 自动约束，少写错。
+`transform` 的返回类型由 SDK 条件类型约束：`valueChange` 返回「新值」类型，其余标准事件返回完整引擎 payload 类型，少写错。
 
 ### 自定义事件 — 改名 + payload + scope
 

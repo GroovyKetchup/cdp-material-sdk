@@ -1,3 +1,4 @@
+import { ENGINE_EVENT_TYPE } from '../constants/event';
 import type { CustomEventKey, EventKey, EngineEventProtocol, StandardEventKey } from './events';
 
 /**
@@ -10,9 +11,20 @@ export interface ScopeContext {
   index?: number;
 }
 
+/**
+ * 标准事件 transform 的返回类型。
+ * `valueChange` 是特殊事件：transform 只负责从回调参数提取「新值」，
+ * 最终 `{ newValue, oldValue }` 引擎 payload 由宿主组装（oldValue 来自宿主 value ref）。
+ * 其余标准事件 transform 返回完整引擎 payload。
+ */
+export type StandardEventTransformResult<K extends StandardEventKey> =
+  K extends typeof ENGINE_EVENT_TYPE.VALUE_CHANGE
+    ? EngineEventProtocol[typeof ENGINE_EVENT_TYPE.VALUE_CHANGE]['newValue']
+    : EngineEventProtocol[K];
+
 export interface StandardEventBinding<K extends StandardEventKey> {
   propName?: string;
-  transform?: (...args: any[]) => EngineEventProtocol[K];
+  transform?: (...args: any[]) => StandardEventTransformResult<K>;
   toScope?: (...args: any[]) => ScopeContext | undefined;
 }
 

@@ -124,14 +124,15 @@ adapter: {
   events: {
     valueChange: {
       propName: 'onSelectedValueChange',
-      transform: (nextValue, previousValue) => ({
-        newValue: nextValue,
-        oldValue: previousValue,
-      }),
+      // valueChange 特殊：transform 只负责从回调参数提取「新值」，
+      // 最终 { newValue, oldValue } 引擎 payload 由宿主组装（oldValue 来自宿主 value ref）
+      transform: (_event, value) => value,
     },
   },
 },
 ```
+
+`valueChange` 的 `transform` 返回新值本身，而不是完整 payload；其余标准事件（如 `itemClick`）的 `transform` 返回完整引擎 payload。
 
 自定义事件映射：
 

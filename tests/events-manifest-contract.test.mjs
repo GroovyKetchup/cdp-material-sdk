@@ -148,3 +148,32 @@ test('item events declare index/item payload with titles', () => {
     assert.equal(schema.properties?.item?.title, '数据项');
   }
 });
+
+test('canonical definitions migrated descriptions from GlobalEventMeta', () => {
+  assert.equal(STANDARD_EVENT_DEFINITIONS[ENGINE_EVENT_TYPE.CLICK].description, '组件被点击时触发');
+  assert.equal(STANDARD_EVENT_DEFINITIONS[ENGINE_EVENT_TYPE.VALUE_CHANGE].description, '输入值发生变化时触发');
+  assert.equal(STANDARD_EVENT_DEFINITIONS[ENGINE_EVENT_TYPE.ITEM_LONG_PRESS].description, '长按单项时触发（桌面端和移动端）');
+  assert.equal(STANDARD_EVENT_DEFINITIONS[ENGINE_EVENT_TYPE.MOUNT].description, '组件挂载完成时触发');
+  assert.equal(STANDARD_EVENT_DEFINITIONS[ENGINE_EVENT_TYPE.DATA_FETCH].description, '组件触发数据查询时触发');
+  assert.ok(STANDARD_EVENT_DEFINITIONS[ENGINE_EVENT_TYPE.OPTIONS_FETCH].description?.includes('panelCode/fieldName/condition/keyword/extraFieldNames'));
+});
+
+test('fieldInfo schema requires fieldName and is deprecated', () => {
+  const fieldInfo = STANDARD_EVENT_DEFINITIONS[ENGINE_EVENT_TYPE.OPTIONS_FETCH].payloadSchema?.properties?.fieldInfo;
+  assert.ok(fieldInfo, 'fieldInfo should exist in optionsFetch payload');
+  assert.deepEqual(fieldInfo.required, ['fieldName']);
+});
+
+test('canonical definitions are deep frozen', () => {
+  assert.ok(Object.isFrozen(STANDARD_EVENT_DEFINITIONS), 'map should be frozen');
+  assert.ok(Object.isFrozen(STANDARD_EVENT_DEFINITIONS[ENGINE_EVENT_TYPE.CLICK]), 'event definition should be frozen');
+  assert.ok(
+    Object.isFrozen(STANDARD_EVENT_DEFINITIONS[ENGINE_EVENT_TYPE.VALUE_CHANGE].payloadSchema),
+    'payloadSchema should be frozen',
+  );
+  assert.throws(
+    () => { STANDARD_EVENT_DEFINITIONS[ENGINE_EVENT_TYPE.CLICK].title = '被修改'; },
+    TypeError,
+    'mutating a frozen definition should throw',
+  );
+});

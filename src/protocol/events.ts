@@ -64,28 +64,40 @@ export type StandardEventDefinitionMap = Readonly<{
   [K in StandardEventKey]: StandardEventDefinition;
 }>;
 
-const itemEventPayloadSchema: JSONSchema7 = {
+function deepFreeze<T>(value: T): T {
+  if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+    Object.freeze(value);
+    for (const key of Object.keys(value)) {
+      deepFreeze((value as Record<string, unknown>)[key]);
+    }
+  }
+  return value;
+}
+
+const itemEventPayloadSchema: JSONSchema7 = deepFreeze({
   type: 'object',
   properties: {
     index: { type: 'number', title: '索引' },
     item: { type: 'object', title: '数据项' },
   },
   required: ['index', 'item'],
-};
+});
 
 /**
- * 标准事件的 canonical 元数据事实源。
+ * 标准事件的 canonical 元数据事实源（deep frozen，运行时不可变）。
  * void 事件不声明 payloadSchema（缺失即表示事件没有 payload），
  * 有 payload 的事件声明完整 JSON Schema（object schema 不封闭额外字段）。
+ * description 迁移自原前端 GlobalEventMeta，保证前端删除重复事实源后说明不丢失。
  */
-export const STANDARD_EVENT_DEFINITIONS: StandardEventDefinitionMap = {
-  [ENGINE_EVENT_TYPE.MOUNT]: { title: '挂载' },
-  [ENGINE_EVENT_TYPE.UNMOUNT]: { title: '卸载' },
-  [ENGINE_EVENT_TYPE.CLICK]: { title: '点击' },
+export const STANDARD_EVENT_DEFINITIONS: StandardEventDefinitionMap = deepFreeze({
+  [ENGINE_EVENT_TYPE.MOUNT]: { title: '挂载', description: '组件挂载完成时触发' },
+  [ENGINE_EVENT_TYPE.UNMOUNT]: { title: '卸载', description: '组件卸载时触发' },
+  [ENGINE_EVENT_TYPE.CLICK]: { title: '点击', description: '组件被点击时触发' },
   [ENGINE_EVENT_TYPE.FOCUS]: { title: '获取焦点' },
   [ENGINE_EVENT_TYPE.BLUR]: { title: '失去焦点' },
   [ENGINE_EVENT_TYPE.VALUE_CHANGE]: {
     title: '值改变',
+    description: '输入值发生变化时触发',
     payloadSchema: {
       type: 'object',
       properties: {
@@ -95,12 +107,17 @@ export const STANDARD_EVENT_DEFINITIONS: StandardEventDefinitionMap = {
       required: ['newValue', 'oldValue'],
     },
   },
-  [ENGINE_EVENT_TYPE.ITEM_CLICK]: { title: '项点击', payloadSchema: itemEventPayloadSchema },
-  [ENGINE_EVENT_TYPE.ITEM_DOUBLE_CLICK]: { title: '项双击', payloadSchema: itemEventPayloadSchema },
-  [ENGINE_EVENT_TYPE.ITEM_RIGHT_CLICK]: { title: '项右键', payloadSchema: itemEventPayloadSchema },
-  [ENGINE_EVENT_TYPE.ITEM_LONG_PRESS]: { title: '项长按', payloadSchema: itemEventPayloadSchema },
+  [ENGINE_EVENT_TYPE.ITEM_CLICK]: { title: '项点击', description: '点击单项时触发', payloadSchema: itemEventPayloadSchema },
+  [ENGINE_EVENT_TYPE.ITEM_DOUBLE_CLICK]: { title: '项双击', description: '双击单项时触发', payloadSchema: itemEventPayloadSchema },
+  [ENGINE_EVENT_TYPE.ITEM_RIGHT_CLICK]: { title: '项右键', description: '右键点击单项时触发', payloadSchema: itemEventPayloadSchema },
+  [ENGINE_EVENT_TYPE.ITEM_LONG_PRESS]: {
+    title: '项长按',
+    description: '长按单项时触发（桌面端和移动端）',
+    payloadSchema: itemEventPayloadSchema,
+  },
   [ENGINE_EVENT_TYPE.DATA_FETCH]: {
     title: '数据查询',
+    description: '组件触发数据查询时触发',
     payloadSchema: {
       type: 'object',
       properties: {
@@ -117,6 +134,7 @@ export const STANDARD_EVENT_DEFINITIONS: StandardEventDefinitionMap = {
   },
   [ENGINE_EVENT_TYPE.OPTIONS_FETCH]: {
     title: '选项查询',
+    description: '下拉类组件需要刷新选项时触发（挂载、搜索、condition 变化、refresh 调用）。payload 包含 panelCode/fieldName/condition/keyword/extraFieldNames',
     payloadSchema: {
       type: 'object',
       properties: {
@@ -128,6 +146,7 @@ export const STANDARD_EVENT_DEFINITIONS: StandardEventDefinitionMap = {
         fieldInfo: {
           type: 'object',
           properties: { fieldName: { type: 'string', title: '字段名' } },
+          required: ['fieldName'],
           title: '字段信息',
           description: '已废弃：历史字段，等价于 { fieldName }，请直接使用顶层 fieldName',
         },
@@ -135,7 +154,7 @@ export const STANDARD_EVENT_DEFINITIONS: StandardEventDefinitionMap = {
       required: ['panelCode', 'fieldName'],
     },
   },
-};
+});
 
 export type StandardEventKey = keyof EngineEventProtocol;
 export type CustomEventKey = `${string}:${string}`;

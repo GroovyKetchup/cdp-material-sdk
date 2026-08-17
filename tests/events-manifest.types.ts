@@ -3,6 +3,7 @@ import {
   type ComponentManifest,
   type ResolvedComponentManifest,
   type StandardEventDeclaration,
+  type StandardEventTransformResult,
 } from '../src/portable';
 
 const invalidAuthorDeclaration: StandardEventDeclaration = {
@@ -18,3 +19,12 @@ const resolved: ResolvedComponentManifest = resolveComponentManifest({
 
 resolved.events?.valueChange?.payloadSchema;
 void invalidAuthorDeclaration;
+
+// valueChange transform 返回「新值」；其余标准事件 transform 返回完整引擎 payload
+const valueChangeTransformResult: StandardEventTransformResult<'valueChange'> = 'new-value';
+const itemClickTransformResult: StandardEventTransformResult<'itemClick'> = {
+  index: 1,
+  item: { id: 'row-1' },
+};
+void valueChangeTransformResult;
+void itemClickTransformResult;
