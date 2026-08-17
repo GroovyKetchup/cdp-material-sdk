@@ -1,5 +1,6 @@
 import type { JSONSchema7 } from 'json-schema';
 import type { ComponentAdapter } from './adapter';
+import { STANDARD_EVENT_DEFINITIONS, isStandardEventKey } from './events';
 import type { CustomEventKey, EventKey, StandardEventKey } from './events';
 import type { ComponentTrait } from './traits';
 import type { ComponentCategory } from '../types/category';
@@ -50,6 +51,7 @@ export interface CustomEventDeclaration extends StandardEventDeclaration {
 
 export interface EventSpec extends StandardEventDeclaration {
   type: StandardEventKey;
+  payloadSchema?: JSONSchema7;
 }
 
 export interface CustomEventSpec extends CustomEventDeclaration {
@@ -227,4 +229,54 @@ export interface ComponentManifest {
   _componentActionKeys?: readonly string[];
   state?: Record<string, StateSpec>;
   usage?: AIUsageSpec;
+}
+
+export interface ResolvedStandardEventDeclaration extends StandardEventDeclaration {
+  title: string;
+  payloadSchema?: JSONSchema7;
+}
+
+export type ResolvedManifestStandardEventMap = Partial<
+  Record<StandardEventKey, ResolvedStandardEventDeclaration>
+>;
+
+export type ResolvedComponentManifest = Omit<ComponentManifest, 'events'> & {
+  events?: ResolvedManifestStandardEventMap;
+};
+
+function cloneEventPayloadSchema(schema: JSONSchema7): JSONSchema7 {
+  return JSON.parse(JSON.stringify(schema)) as JSONSchema7;
+}
+
+/**
+ * 将作者态 manifest 解析为可直接消费的 resolved manifest。
+ * 标准事件从 canonical 事实源补齐 title/description/payloadSchema，
+ * 作者声明的 title/description/deprecated 覆盖 canonical；
+ * 有 payload 的标准事件强制使用 SDK payloadSchema，void 事件不会获得 schema。
+ * customEvents 原样保留，不被改写。
+ */
+export function resolveComponentManifest(
+  manifest: ComponentManifest,
+): ResolvedComponentManifest {
+  const { events: manifestEvents, ...rest } = manifest;
+  if (manifestEvents === undefined) return rest;
+
+  const events: ResolvedManifestStandardEventMap = {};
+  for (const [type, declaration] of Object.entries(manifestEvents)) {
+    if (!declaration) continue;
+    if (!isStandardEventKey(type)) {
+      throw new TypeError(`Unknown standard event: ${type}`);
+    }
+    const canonical = STANDARD_EVENT_DEFINITIONS[type];
+    events[type] = {
+      ...canonical,
+      ...(declaration.title !== undefined ? { title: declaration.title } : {}),
+      ...(declaration.description !== undefined ? { description: declaration.description } : {}),
+      ...(declaration.deprecated !== undefined ? { deprecated: declaration.deprecated } : {}),
+      ...(canonical.payloadSchema !== undefined
+        ? { payloadSchema: cloneEventPayloadSchema(canonical.payloadSchema) }
+        : {}),
+    };
+  }
+  return { ...rest, events };
 }
