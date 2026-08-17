@@ -20,8 +20,11 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "node scripts/build-material-sdk.mjs && tsc -p tsconfig.build.json",
+    "test:runtime": "node --test tests/*.test.mjs",
+    "test:types": "tsc -p tsconfig.tests.json",
+    "test": "npm run build && npm run test:types && npm run test:runtime",
     "pack:dry-run": "npm pack --json --dry-run",
-    "release:check": "npm run build && npm run pack:dry-run"
+    "release:check": "npm test && npm run pack:dry-run"
   },
   "exports": {
     ".": {
