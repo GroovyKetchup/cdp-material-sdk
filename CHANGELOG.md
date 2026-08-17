@@ -4,6 +4,11 @@
 
 - 新增 `INTERACTION_DRILLABLE` trait 及下钻公共契约，供宿主 Feature 与外置组件通过受控 props、actions、state 和导航请求事件协作。
 - 新增《层级下钻能力模型》，明确 SDK、宿主和外置 UI 库的边界。
+- 新增标准事件事实源 `STANDARD_EVENT_DEFINITIONS`（含 `StandardEventDefinition` / `StandardEventDefinitionMap` 类型），为全部标准 key 提供 canonical title / description / payloadSchema。
+  - void 事件（mount / unmount / click / focus / blur）不声明 `payloadSchema`，缺失即表示无 payload。
+  - 有 payload 的事件声明完整 JSON Schema（object schema 不封闭额外字段）；`fieldInfo` 仅存在于 `optionsFetch`，标记废弃说明。
+- 新增 `resolveComponentManifest()` 与 `ResolvedComponentManifest` / `ResolvedStandardEventDeclaration` / `ResolvedManifestStandardEventMap` 类型：作者态标准事件补齐 canonical metadata，作者 `title` / `description` / `deprecated` 覆盖 canonical，有 payload 的事件强制使用 SDK schema，`customEvents` 原样保留。
+  - 兼容边界：作者态 `ComponentManifest.events` 仍不允许声明 `payloadSchema`；`normalizeManifestEvents()` 行为不变，不隐式补默认定义；未知标准事件 key 抛出 `TypeError`。
 
 ## 0.1.1
 - 删除 `RemoteOptionConfigSchema`

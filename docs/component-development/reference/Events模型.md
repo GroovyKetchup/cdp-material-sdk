@@ -50,9 +50,25 @@ events: {
 | `itemDoubleClick` | 条目双击 | `{ index: number; item: Record<string, any> }` | `onItemDoubleClick` |
 | `itemRightClick` | 条目右键点击 | `{ index: number; item: Record<string, any> }` | `onItemRightClick` |
 | `itemLongPress` | 条目长按 | `{ index: number; item: Record<string, any> }` | `onItemLongPress` |
-| `dataFetch` | 请求数据 | `{ panelCode: string; condition?: Record<string, any>; keyword?: string; pageNo?: number; pageSize?: number; orderBy?: Array<Record<string, unknown>>; advancedConditions?: Record<string, unknown>; fieldInfo?: { fieldName: string } }` | `onDataFetch` |
+| `dataFetch` | 请求数据 | `{ panelCode: string; condition?: Record<string, any>; keyword?: string; pageNo?: number; pageSize?: number; orderBy?: Array<Record<string, unknown>>; advancedConditions?: Record<string, unknown> }` | `onDataFetch` |
+| `optionsFetch` | 请求远程选项 | `{ panelCode: string; fieldName: string; condition?: Record<string, any>; keyword?: string; extraFieldNames?: string[]; fieldInfo?: { fieldName: string } }` | `onOptionsFetch` |
 
 这里的标准 props 是组件作者建议暴露的回调 prop 名。第三方组件实际 prop 名不同，或回调参数不符合标准 payload 时，使用 Adapter 映射。
+
+### canonical schema 与 resolved manifest
+
+标准事件的 title / description / payloadSchema 由 SDK 的 `STANDARD_EVENT_DEFINITIONS` 提供事实源。组件作者声明标准事件时**只能**覆盖 `title` / `description` / `deprecated`，不能声明 `payloadSchema`；`payloadSchema` 由宿主在注册期通过 `resolveComponentManifest()` 统一补齐，得到可直接消费的 `ResolvedComponentManifest`。
+
+解析规则：
+
+- void 事件不声明 `payloadSchema`；缺少该字段即表示事件没有 payload。
+- 不要用空对象 `{}` 表示无 payload——空 JSON Schema 表示允许任意 payload。
+- 也不要使用 `{ type: 'null' }`——它表示 payload 存在且值为 `null`。
+- 有 payload 的标准事件最终强制使用 SDK 的 canonical `payloadSchema`，组件无法覆盖。
+- object schema 不设置 `additionalProperties: false`，保留向后兼容和协议扩展空间。
+- `customEvents` 继续由作者提供 `payloadSchema`，resolver 不改变其语义。
+
+`fieldInfo` 仅存在于 `optionsFetch` 的 canonical payload，已废弃，请直接使用顶层 `fieldName`。
 
 ---
 

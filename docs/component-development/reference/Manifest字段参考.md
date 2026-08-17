@@ -23,7 +23,7 @@ related:
 | `meta` | `object` | 是 | 基本信息 |
 | `traits` | `ComponentTrait[]` | 否 | 能力声明 |
 | `props` | `ObjectSchema` | 否 | 可配置 props 的 JSON Schema，详见 [声明 props](../recipes/声明props.md) |
-| `events` | `EventSpec[]` | 否 | 标准事件声明 |
+| `events` | `ManifestStandardEventMap` | 否 | 标准事件声明（作者态，key 为事件类型） |
 | `customEvents` | `Record<string, CustomEventSpec>` | 否 | 自定义事件声明 |
 | `actions` | `Record<string, ActionSpec>` | 否 | 组件动作声明 |
 | `state` | `Record<string, StateSpec>` | 否 | 运行时状态声明 |
@@ -32,6 +32,12 @@ related:
 | `engine` | `EnginePolicies` | 否 | 宿主渲染策略 |
 | `nesting` | `object` | 否 | 嵌套约束 |
 | `usage` | `AIUsageSpec` | 否 | 面向 AI 的使用提示 |
+
+### 作者态与解析态
+
+组件作者书写的是**作者态** `ComponentManifest`：`events` 是 `ManifestStandardEventMap`（key 为事件类型），标准事件只声明 `title` / `description` / `deprecated`，**不能**声明 `payloadSchema`。
+
+宿主在注册期调用 `resolveComponentManifest()` 生成**解析态** `ResolvedComponentManifest`：标准事件补齐 canonical 的 `title` / `description` / `payloadSchema`（事实源见 [Events 模型](./Events模型.md)），组件声明的 `title` / `description` / `deprecated` 覆盖 canonical；有 payload 的事件强制使用 SDK schema，void 事件不出现 `payloadSchema`。`customEvents` 不被改写。
 
 ---
 

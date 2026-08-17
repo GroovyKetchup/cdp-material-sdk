@@ -106,7 +106,7 @@ adapter: {
 
 ### 标准事件 — 改名 + payload 重塑
 
-第三方组件回调签名是 `(event, value) => void`，但 CDP `valueChange` 的 payload 形状是 `{ value }`：
+第三方组件回调签名是 `(event, value) => void`，但 CDP `valueChange` 的 payload 形状是 `{ newValue, oldValue }`：
 
 ```ts
 events: {
@@ -116,7 +116,7 @@ adapter: {
   events: {
     valueChange: {
       propName: 'onSelectedValueChange',
-      transform: (event, value) => ({ value }),
+      transform: (event, value) => ({ newValue: value, oldValue: undefined }),
     },
   },
 },
