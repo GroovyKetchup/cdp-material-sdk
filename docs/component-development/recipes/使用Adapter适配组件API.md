@@ -21,7 +21,7 @@ Adapter 用于把组件自身 API 映射到 CDP 约定。它适合接入第三�
 | 层 | 适配诉求 | adapter 原生能力 | 推荐 |
 |----|---------|-----------------|------|
 | 事件层 | 改 prop 名（`onClick` → `onPress`） | `events[K].propName` / `customEvents[K].propName` | **adapter** |
-| 事件层 | reshape payload 到 CDP 标准 payload | `events[K].transform`（类型化到 `EngineEventProtocol[K]`）/ `customEvents[K].transform` | **adapter** |
+| 事件层 | reshape payload 到 CDP 标准 payload | `events[K].transform`（默认返回完整引擎 payload；`valueChange` 例外：仅返回新值，宿主补齐 `{ newValue, oldValue }`）/ `customEvents[K].transform` | **adapter** |
 | 事件层 | 提取作用域 record / index | `events[K].toScope` / `customEvents[K].toScope` | **adapter** |
 | Props 层 | 改 prop 名（`value` → `selectedValue`） | `propMapping` | **adapter** |
 | Props 层 | 值转换 / 默认值 / 受控-非受控调谐 | 仅 `mapProps`（**逃生舱**） | **wrapper** |
@@ -29,7 +29,7 @@ Adapter 用于把组件自身 API 映射到 CDP 约定。它适合接入第三�
 
 ### 事件层为什么是 adapter 的主场
 
-`StandardEventBinding<K>` / `CustomEventBinding` 的能力是 **propName + transform + toScope**，三者合起来覆盖了"换名 + 重塑 payload + 提取作用域"——CDP 标准事件的全部适配诉求。`transform` 的返回类型还约束到 `EngineEventProtocol[K]`，是**类型化**的转换。这正是它的设计目标，**不是逃生舱**。
+`StandardEventBinding<K>` / `CustomEventBinding` 的能力是 **propName + transform + toScope**，三者合起来覆盖了“换名 + 重塑 payload + 提取作用域”——CDP 标准事件的全部适配诉求。`transform` 的返回类型约束到标准引擎 payload（`valueChange` 例外：仅返回新值，宿主补齐 `{ newValue, oldValue }`），是**类型化**的转换。这正是它的设计目标，**不是逃生舱**。
 
 写在 wrapper 里反而要重新构造一份相同的 payload，丢失类型约束，并把协议形状渗透到组件源码。
 
@@ -86,7 +86,7 @@ adapter: {
 | 字段 | 作用 |
 |------|------|
 | `propName` | 第三方组件实际触发回调的 prop 名（如 `onPress`、`onSelectedValueChange`） |
-| `transform(...args)` | 把第三方回调参数 reshape 成 CDP 标准 payload；标准事件返回类型受 `EngineEventProtocol[K]` 约束 |
+| `transform(...args)` | 把第三方回调参数 reshape 成 CDP 标准 payload；标准事件默认返回完整引擎 payload，`valueChange` 例外：仅返回新值，宿主补齐 `{ newValue, oldValue }` |
 | `toScope(...args)` | 从回调参数中提取 `{ record, index }`，用于 List/Table 行项事件的作用域 |
 
 ### 标准事件 — 仅改名
@@ -192,7 +192,7 @@ adapter: {
 
 - [ ] adapter 标准事件已经先在 `events` 声明，自定义事件已经先在 `customEvents` 声明。
 - [ ] adapter event 的 `propName` 与第三方组件实际回调 prop 名一致。
-- [ ] 需要 reshape payload 时使用 `transform`，类型对齐到 `EngineEventProtocol[K]`（标准事件）或 `payloadSchema`（自定义事件）。
+- [ ] 需要 reshape payload 时使用 `transform`，类型对齐到标准引擎 payload（`valueChange` 例外：仅返回新值）或 `payloadSchema`（自定义事件）。
 - [ ] 需要作用域的事件（List / Table 行项）使用 `toScope` 提取 `{ record, index }`。
 - [ ] `propMapping` 只用于纯重命名；值变换 / 默认值 / 受控转换走 wrapper。
 - [ ] `mapProps` 仅在没有 wrapper 控制权且必须保留 manifest 即真相时使用。
@@ -208,7 +208,7 @@ adapter: {
 
 ### 在 wrapper 里再 reshape 一次 payload
 
-如果已经用 `adapter.events.transform` 做了 payload 重塑，wrapper 不要再做一次——会出现两层映射叠加，或者 wrapper 输出的 payload 与 `EngineEventProtocol[K]` 形状不匹配。事件层适配只在一处做。
+如果已经用 `adapter.events.transform` 做了 payload 重塑，wrapper 不要再做一次——会出现两层映射叠加，或者 wrapper 输出的 payload 与标准引擎 payload 形状不匹配。`valueChange` 的 transform 同样只交付新值，不要在 wrapper 里补 `{ newValue, oldValue }`。事件层适配只在一处做。
 
 ### 用 `mapProps` 做改名
 
