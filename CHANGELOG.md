@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.4
 
 - 修复 `valueChange` 的 Adapter `transform` 契约：transform 只返回「新值」，最终 `{ newValue, oldValue }` 引擎 payload 由宿主组装。新增条件类型 `StandardEventTransformResult`：`valueChange` 的 transform 返回新值类型，其余标准事件返回完整引擎 payload。
 - canonical 标准事件定义迁移原前端 `GlobalEventMeta` 的全部 description，保证前端删除重复事实源后说明不丢失。
