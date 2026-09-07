@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.5
+
+- 新增 `PRESENTATION_READONLY_APPEARANCE` trait，声明组件支持宿主控制的 boxed/plain 只读呈现；该能力与 `DATA_FIELD` 正交，通常组合使用。
+- 从主入口和 portable 入口导出新 trait，并补充运行时、类型契约测试及 Traits 能力模型说明。
+
 ## 0.1.4
 
 - 修复 `valueChange` 的 Adapter `transform` 契约：transform 只返回「新值」，最终 `{ newValue, oldValue }` 引擎 payload 由宿主组装。新增条件类型 `StandardEventTransformResult`：`valueChange` 的 transform 返回新值类型，其余标准事件返回完整引擎 payload。
