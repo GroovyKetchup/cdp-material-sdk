@@ -25,6 +25,7 @@ Traits 之间不互斥，一个组件可以同时声明多个 trait。例如 For
 | `Layout.Container` | `COMPONENT_TRAIT.LAYOUT_CONTAINER` | 通用容器：Card、Grid、Section；强组合关系：Tabs、Steps、Form（带 `nesting` 类型约束） | 组件具备**默认 children 区域**（与 `manifest.slots` 是两条独立机制） |
 | `Interaction.Clickable` | `COMPONENT_TRAIT.INTERACTION_CLICKABLE` | Button、Link、ClickableCard | 组件具备点击交互语义 |
 | `Interaction.Drillable` | `COMPONENT_TRAIT.INTERACTION_DRILLABLE` | Chart、Table、CardList | 宿主为组件实例提供受控下钻路径、动作和导航请求事件 |
+| `Presentation.ReadOnlyAppearance` | `COMPONENT_TRAIT.PRESENTATION_READONLY_APPEARANCE` | 明确声明该能力的字段控件 | 组件支持宿主控制的 boxed/plain 只读呈现 |
 
 ---
 
@@ -172,6 +173,29 @@ Traits 之间不互斥，一个组件可以同时声明多个 trait。例如 For
 
 ---
 
+## PRESENTATION_READONLY_APPEARANCE
+
+### 什么时候声明
+
+组件需要宿主按“只读外观”控制呈现（boxed / plain 两种形态）时声明。这是与数据能力正交的**呈现层**能力，前端只会对**明确声明该能力**的字段控件启用。
+
+### 与 DATA_FIELD 的关系
+
+`PRESENTATION_READONLY_APPEARANCE` **不等于** `DATA_FIELD`。它描述的是呈现层的只读外观，而不是数据字段语义。它通常与 `DATA_FIELD` **组合**声明：组件既是数据字段语义，又支持宿主控制的只读呈现。
+
+### 作者要做什么
+
+- 声明 `COMPONENT_TRAIT.PRESENTATION_READONLY_APPEARANCE`。
+- 如同时具备数据字段语义，同时声明 `COMPONENT_TRAIT.DATA_FIELD` 并声明 `meta.valueSchema`。
+- 组件根据宿主注入的 `readOnlyAppearance` 配置切换 boxed / plain 呈现形态。
+
+### 宿主可据此做什么
+
+- 识别组件支持宿主控制的只读呈现。
+- 为组件注入 `readOnlyAppearance` 配置，控制 boxed / plain 呈现形态。
+
+---
+
 ## Traits 与 valueSchema
 
 声明 `DATA_FIELD` 或 `DATA_CONTAINER` 时，建议同时声明 `meta.valueSchema`。
@@ -213,6 +237,7 @@ meta: {
 | `LAYOUT_CONTAINER` | 控制**默认 children 区域**开关，仅影响 `schema.children` 是否被宿主递归渲染。具名子区域走 `manifest.slots`，与本 trait 互不依赖 |
 | `INTERACTION_CLICKABLE` | 表示具备点击语义；需要编排响应时再声明 click event |
 | `INTERACTION_DRILLABLE` | 表示具备层级下钻语义；宿主维护路径状态，组件只做受控展示与导航请求 |
+| `PRESENTATION_READONLY_APPEARANCE` | 表示组件支持宿主控制的 boxed/plain 只读呈现；不等于 `DATA_FIELD`，通常与 `DATA_FIELD` 组合声明 |
 
 数据 trait 与 `meta.valueSchema` 的校验级别见 [validateManifest 校验规则](./validateManifest校验规则.md)。
 
